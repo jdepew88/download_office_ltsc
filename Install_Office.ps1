@@ -11,7 +11,12 @@ if (-not (Test-Path $outputDir)) {
 # Download Office Deployment Tool from Microsoft
 try {
     Invoke-WebRequest -Uri $odtUrl -OutFile $odtInstaller -ErrorAction Stop
-    Write-Output "Downloaded Office Deployment Tool successfully."
+    if (Test-Path $odtInstaller) {
+        Write-Output "Downloaded Office Deployment Tool successfully."
+    } else {
+        Write-Error "Office Deployment Tool download failed. File not found."
+        exit 1
+    }
 } catch {
     Write-Error "Failed to download Office Deployment Tool: $_"
     exit 1
@@ -20,26 +25,35 @@ try {
 # Silently extract the Office Deployment Tool
 try {
     Start-Process -FilePath $odtInstaller -ArgumentList "/quiet /extract:$outputDir" -Wait
-    Write-Output "Extracted Office Deployment Tool successfully."
+    if (Test-Path "$outputDir\setup.exe") {
+        Write-Output "Extracted Office Deployment Tool successfully."
+    } else {
+        Write-Error "Extraction failed. setup.exe not found."
+        exit 1
+    }
 } catch {
     Write-Error "Failed to extract Office Deployment Tool: $_"
     exit 1
 }
 
 # Download configuration.xml using Invoke-WebRequest
-$configUrl = "https://raw.githubusercontent.com/jdepew88/download_office_ltsc/main/Configuration.xml"  # Updated URL for raw file download
+$configUrl = "https://raw.githubusercontent.com/jdepew88/download_office_ltsc/main/Configuration.xml"
+$configFile = "$outputDir\configuration.xml"
 try {
-    Invoke-WebRequest -Uri $configUrl -OutFile "$outputDir\configuration.xml" -ErrorAction Stop
-    Write-Output "Downloaded configuration.xml successfully."
+    Invoke-WebRequest -Uri $configUrl -OutFile $configFile -ErrorAction Stop
+    if (Test-Path $configFile) {
+        Write-Output "Downloaded configuration.xml successfully."
+    } else {
+        Write-Error "Configuration.xml download failed. File not found."
+        exit 1
+    }
 } catch {
     Write-Error "Failed to download configuration.xml: $_"
     exit 1
 }
 
 # Inform the user about the download process
-Write-Output ""
-Write-Output "Office 2021 LTSC installation files have been downloaded to:"
-Write-Output "$outputDir"
+Write-Output "Office 2021 LTSC installation files have been downloaded to: $outputDir"
 
 # Change directory to where Office Deployment Tool is extracted
 Set-Location $outputDir
@@ -55,10 +69,6 @@ try {
 }
 
 # Inform the user about the installation process
-Write-Output ""
-Write-Output "A window will now open to show the installation progress."
-
-# Run setup to install Office
 Write-Output "Running setup /configure configuration.xml..."
 try {
     Start-Process -FilePath ".\setup.exe" -ArgumentList "/configure configuration.xml" -Wait
