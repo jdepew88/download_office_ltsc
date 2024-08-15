@@ -37,7 +37,9 @@ Execute the script:
   .\deploy_office.ps1
   ```
 
-### 3. **Choose Your Configuration:**
+## Choosing Your Configuration.mxl
+
+### 1. **Choose Your Configuration:**
 When prompted, choose one of the following options:
 
   ##### 1:  Office 2021 Standard  -  Installs Office 2021 Standard using the predefined config_standard.xml.
@@ -51,16 +53,17 @@ When prompted, choose one of the following options:
   3. Custom (Place your Configuration.xml file in the project directory before running this script)
   Enter the number of your choice (1, 2, or 3):
   ```
- - **Note for Custom Configuration:** If you select option 3 and the **'Configuration.xml'** file is not found, the script will remind you to place it in the project directory and then exit.
+ - **Note for Custom Configuration:** If you select option 3 and the **'Configuration.xml'** file is not found, the script will remind you to place it in the project directory and then exit.  (See next step to use Microsoft's OCT 'Office Customization Tool'.  Here you can choose the apps you prefer.
 
-### 4. **Using the Office Customization Tool:**
+### 2. **Using the Office Customization Tool:**
 
  - If you prefer to create your own custom configuration file, you can use the [Office Customization Tool](https://config.office.com/deploymentsettings)
 .
  - This web-based tool allows you to customize various settings for your Office deployment, including product selection, update channels, languages, and more.
  - After customizing your settings, download the Configuration.xml file and place it in the project directory before running this script.
 
-### 5. **Automatic Download and Installation:**
+## What the Script Does
+### 1. **Automatic Download and Installation:**
 
 The script will automatically:
 
@@ -69,7 +72,7 @@ The script will automatically:
  - Download the Office 2021 installation files based on your selected configuration.
  - Run the installation using the specified configuration file.
 
-### 6. **Monitor Progress:**
+### 2. **Monitor Progress:**
 
 The script will display progress information as it downloads and installs Office 2021.
 
