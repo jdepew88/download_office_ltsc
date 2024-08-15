@@ -1,12 +1,51 @@
 # Define variables for download URLs and file names
 $odtUrl = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17830-20162.exe"
-$outputDir = "$PSScriptRoot\OfficeDeploymentTool"  # Output directory for extraction
+
+# Define configuration file paths with the updated URLs
+$configStandardUrl = "https://raw.githubusercontent.com/jdepew88/download_office_ltsc/main/config_standard.xml"
+$configProPlusUrl = "https://raw.githubusercontent.com/jdepew88/download_office_ltsc/main/config_ProPlus.xml"
+$customConfigFile = "$PSScriptRoot\Configuration.xml"
+
+# Prompt the user to select a configuration file
+Write-Output "Select the Office 2021 version to install:"
+Write-Output "1. Office 2021 Standard"
+Write-Output "2. Office 2021 ProPlus"
+Write-Output "3. Custom (Place your Configuration.xml file in the same directory as this script)"
+$selection = Read-Host "Enter the number of your choice (1, 2, or 3)"
+
+# Set the configuration file based on the user's selection
+switch ($selection) {
+    1 {
+        $configUrl = $configStandardUrl
+        Write-Output "You selected Office 2021 Standard."
+    }
+    2 {
+        $configUrl = $configProPlusUrl
+        Write-Output "You selected Office 2021 ProPlus."
+    }
+    3 {
+        if (Test-Path $customConfigFile) {
+            Write-Output "You selected Custom configuration."
+            $configUrl = $customConfigFile
+        } else {
+            Write-Output "Custom configuration file not found. Please place your Configuration.xml file in the same directory as this Script."
+            Read-Host "Press Enter to exit."
+            exit 1
+        }
+    }
+    default {
+        Write-Output "Invalid selection. Exiting script."
+        exit 1
+    }
+}
+
+# Create a unique directory name using a timestamp
+$timestamp = Get-Date -Format "yyyyMMddHHmmss"
+$outputDir = "$PSScriptRoot\OfficeDeploymentTool_$timestamp"  # Unique output directory for extraction
 $odtInstaller = "$outputDir\ODTInstaller.exe"
 
-# Create OfficeDeploymentTool directory if it doesn't exist
-if (-not (Test-Path $outputDir)) {
-    New-Item -ItemType Directory -Path $outputDir | Out-Null
-}
+# Create the unique OfficeDeploymentTool directory
+New-Item -ItemType Directory -Path $outputDir | Out-Null
 
 # Download Office Deployment Tool from Microsoft
 try {
@@ -36,20 +75,23 @@ try {
     exit 1
 }
 
-# Download configuration.xml using Invoke-WebRequest
-$configUrl = "https://raw.githubusercontent.com/jdepew88/download_office_ltsc/main/Configuration.xml"
+# Download or use the selected configuration file
 $configFile = "$outputDir\configuration.xml"
-try {
-    Invoke-WebRequest -Uri $configUrl -OutFile $configFile -ErrorAction Stop
-    if (Test-Path $configFile) {
-        Write-Output "Downloaded configuration.xml successfully."
-    } else {
-        Write-Error "Configuration.xml download failed. File not found."
+if ($selection -ne 3) {
+    try {
+        Invoke-WebRequest -Uri $configUrl -OutFile $configFile -ErrorAction Stop
+        if (Test-Path $configFile) {
+            Write-Output "Downloaded configuration.xml successfully."
+        } else {
+            Write-Error "Configuration.xml download failed. File not found."
+            exit 1
+        }
+    } catch {
+        Write-Error "Failed to download configuration.xml: $_"
         exit 1
     }
-} catch {
-    Write-Error "Failed to download configuration.xml: $_"
-    exit 1
+} else {
+    Copy-Item $customConfigFile -Destination $configFile -Force
 }
 
 # Inform the user about the download process
