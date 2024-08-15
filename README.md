@@ -1,53 +1,96 @@
-**Instructions for Using Install_Office.ps1 Script**
-Download the Script:
+# Office 2021 LTSC Deployment Script
 
-Download Install_Office.ps1 script from your GitHub repository or the location where it's hosted.
+This PowerShell script automates the process of deploying Microsoft Office 2021 LTSC (Long-Term Servicing Channel) following the guidelines provided by [Microsoft's official deployment documentation](https://learn.microsoft.com/en-us/office/ltsc/2021/deploy). It allows you to choose between Office 2021 Standard, Office 2021 ProPlus, or a custom configuration, simplifying the entire deployment process.
 
-Prepare Your Environment:
+## Features
 
-Ensure you have a Windows system with PowerShell installed. The script is compatible with PowerShell on Windows.  Script is not signed and Powershell will need you to set "Set-ExecutionPolicy Unresticted".  Set this back after you run the srcipt "Set-ExecutionPolicy Resticted" or Check before changing with "Get-ExecutionPolicy"
+- Downloads the latest Office Deployment Tool directly from Microsoft.
+- Supports three configuration options:
+  1. **Office 2021 Standard**
+  2. **Office 2021 ProPlus**
+  3. **Custom Configuration** (requires `Configuration.xml` to be placed in the project directory)
+- Automatically handles the extraction and setup process.
+- Ensures a unique installation directory for each run to avoid conflicts.
 
-Edit Script Variables (Optional):
+## Prerequisites
 
-Open Install_Office.ps1 in a text editor (like Notepad) if you need to modify any variables such as $setupUrl, $configUrl, or $outputDir to customize the script behavior.
+- Windows PowerShell 5.0 or higher
+- Internet access to download the Office Deployment Tool and configuration files
 
-Run the Script:
+## How to Use
 
-Right-click on Install_Office.ps1 and select "Run with PowerShell". Alternatively, open PowerShell and navigate to the directory containing the script using cd command, then run:
-powershell
+### 1. **Clone or Download the Repository:**
 
-.\Install_Office.ps1  (This starts the script execution.)
+Clone this repository or download the script to your local machine.
 
-Follow Script Output:
+  ```sh
+   git clone https://github.com/jdepew88/download_office_ltsc.git
+  ```
+### 2. **Run the Script:**
 
-The script will download setup.exe and configuration.xml from specified URLs into the $outputDir directory.
+Open PowerShell as Administrator and navigate to the directory containing the script.
+  ```sh
+  cd path\to\download_office_ltsc
+  ```
+Execute the script:
+  ```sh
+  .\deploy_office.ps1
+  ```
 
-Setup.exe is directly from Microsoft and is extracted when you run the Office Deployment Tool exe from https://www.microsoft.com/en-us/download/details.aspx?id=49117
+### 3. **Choose Your Configuration:**
+When prompted, choose one of the following options:
 
-You can like wise make your own configuration script using microsofts own tool (Office Customization Tool) at https://config.office.com/deploymentsettings.  
+  ##### 1:  Office 2021 Standard  -  Installs Office 2021 Standard using the predefined config_standard.xml.
+  ##### 2:  Office 2021 ProPlus  -  Installs Office 2021 ProPlus using the predefined config_ProPlus.xml.
+  ##### 3:  Custom Configuration  -  Use your own Configuration.xml. Ensure this file is placed in the                 project directory   before running the script.
 
-My script just simplfies the process by installing office per the configuration.xml as I have it set (has basic office suite, no Visio and no Project).
+  ```sh
+  Select the Office 2021 version to install:
+  1. Office 2021 Standard
+  2. Office 2021 ProPlus
+  3. Custom (Place your Configuration.xml file in the project directory before running this script)
+  Enter the number of your choice (1, 2, or 3):
+  ```
+ - **Note for Custom Configuration:** If you select option 3 and the **'Configuration.xml'** file is not found, the script will remind you to place it in the project directory and then exit.
 
-It will display progress messages indicating when files are downloaded and when Office 2021 LTSC installation starts.
+### 4. **Using the Office Customization Tool:**
 
-Monitor Installation:
+ - If you prefer to create your own custom configuration file, you can use the [Office Customization Tool](https://config.office.com/deploymentsettings)
+.
+ - This web-based tool allows you to customize various settings for your Office deployment, including product selection, update channels, languages, and more.
+ - After customizing your settings, download the Configuration.xml file and place it in the project directory before running this script.
 
-During installation, a window may open to show the progress of Office installation.
+### 5. **Automatic Download and Installation:**
 
-Completion:
+The script will automatically:
 
-Once the script completes, it will display a message indicating that Office installation has finished.
+ - Download the Office Deployment Tool from Microsoft.
+ - Extract the tool into a uniquely named directory.
+ - Download the Office 2021 installation files based on your selected configuration.
+ - Run the installation using the specified configuration file.
 
-Dependencies: 
+### 6. **Monitor Progress:**
 
-The script relies on basic PowerShell functionality and may use wget or Invoke-WebRequest for file downloads. Ensure these utilities are available in your PowerShell environment.
+The script will display progress information as it downloads and installs Office 2021.
 
-Administrator Privileges: Depending on your system's security settings, you may need to run PowerShell with administrative privileges (Run as administrator) to ensure the script can download files and install Office without issues.
+ - If the installation is successful, a confirmation message will appear.
+  ```sh
+  Office installation completed successfully.
+  ```
+## Troubleshooting
+ - **Script Execution Policy:**
 
-The Office Deployment Tool (setup.exe) may require a version of .NET Framework installed on the system, but this is typically already available on most Windows systems.\
+  If you encounter issues running the script due to execution policy restrictions, you may need to change the policy       temporarily:
+  ```sh
+  Set-ExecutionPolicy RemoteSigned -Scope Process
+  ```
 
-Customization:
+ - **Internet Connectivity:**
+    Ensure that you have a stable internet connection, as the script requires downloading files from Microsoft.
 
-If you need to customize the Office version, configuration options, or installation directory, make a custon configuration.xml file with the Office Customization Tool at https://config.office.com/deploymentsettings.  
+ - **Custom Configuration File:**
+  If using a custom configuration, double-check that the Configuration.xml file is correctly placed in the project directory before starting the script.
 
-By following these instructions, you can effectively use the Install_Office.ps1 script to automate the download and installation of Office 2021 LTSC on your Windows system. Adjustments can be made based on specific organizational requirements or preferences.
+## License
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/jdepew88/download_office_ltsc/blob/main/LICENSE) file for more details.
+
