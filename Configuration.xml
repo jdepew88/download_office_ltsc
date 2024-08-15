@@ -2,6 +2,8 @@
   <Add OfficeClientEdition="64" Channel="PerpetualVL2021">
     <Product ID="Standard2021Volume" PIDKEY="KDX7X-BNVR8-TXXGX-4Q7Y8-78VT3">
       <Language ID="en-us" />
+      <Language ID="MatchOS" />
+      <ExcludeApp ID="Lync" />
     </Product>
   </Add>
   <Property Name="SharedComputerLicensing" Value="0" />
