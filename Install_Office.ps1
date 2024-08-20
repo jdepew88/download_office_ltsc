@@ -1,5 +1,13 @@
-# Define variables for download URLs and file names
+# Define default ODT URL
 $odtUrl = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17830-20162.exe"
+
+# Check if a new ODT URL is provided as a command-line argument
+if ($args.Count -ge 3 -and $args[0] -eq "newurl") {
+    $odtUrl = $args[2]
+    Write-Output "Custom ODT URL provided: $odtUrl"
+} else {
+    Write-Output "Using default ODT URL: $odtUrl"
+}
 
 # Define configuration file paths with the updated URLs
 $configStandardUrl = "https://raw.githubusercontent.com/jdepew88/download_office_ltsc/main/config_standard.xml"
@@ -39,15 +47,32 @@ switch ($selection) {
     }
 }
 
+# Check for available disk space before proceeding
+$minRequiredSpaceGB = 10  # Minimum required space in GB
+$freeSpaceGB = [math]::Round((Get-PSDrive -PSProvider FileSystem -Name C).Free / 1GB, 2)
+
+if ($freeSpaceGB -lt $minRequiredSpaceGB) {
+    Write-Error "Insufficient disk space. At least $minRequiredSpaceGB GB of free space is required."
+    exit 1
+} else {
+    Write-Output "Sufficient disk space detected: $freeSpaceGB GB available."
+}
+
 # Create a unique directory name using a timestamp
 $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-$outputDir = "$PSScriptRoot\OfficeDeploymentTool_$timestamp"  # Unique output directory for extraction
+$outputDir = "$PSScriptRoot\OfficeDeploymentTool_$timestamp"
 $odtInstaller = "$outputDir\ODTInstaller.exe"
 
 # Create the unique OfficeDeploymentTool directory
-New-Item -ItemType Directory -Path $outputDir | Out-Null
+try {
+    New-Item -ItemType Directory -Path $outputDir -ErrorAction Stop | Out-Null
+    Write-Output "Created output directory: $outputDir"
+} catch {
+    Write-Error "Failed to create output directory: $_"
+    exit 1
+}
 
-# Download Office Deployment Tool from Microsoft
+# Download Office Deployment Tool from Microsoft (or custom URL)
 try {
     Invoke-WebRequest -Uri $odtUrl -OutFile $odtInstaller -ErrorAction Stop
     if (Test-Path $odtInstaller) {
@@ -94,8 +119,29 @@ if ($selection -ne 3) {
     Copy-Item $customConfigFile -Destination $configFile -Force
 }
 
-# Inform the user about the download process
-Write-Output "Office 2021 LTSC installation files have been downloaded to: $outputDir"
+# Prompt the user if they want to remove previous Office versions
+$removePrevious = Read-Host "Do you want to remove previous versions of Office on this computer? (Y/N). This is optional; say No if you're doing a new install or updating."
+
+if ($removePrevious -eq "Y") {
+    # Insert <RemoveMSI /> into the configuration.xml file
+    try {
+        $configContent = Get-Content $configFile
+        $configContent -replace '</Configuration>', '<RemoveMSI /></Configuration>' | Set-Content $configFile
+        Write-Output "The option to remove previous versions of Office has been added to the configuration.xml."
+    } catch {
+        Write-Error "Failed to modify configuration.xml to remove previous Office versions: $_"
+        exit 1
+    }
+} else {
+    Write-Output "Previous Office versions will not be removed."
+}
+
+# Confirm with the user before starting the installation
+$confirmation = Read-Host "Ready to install Office 2021 LTSC. Do you want to proceed? (Y/N)"
+if ($confirmation -ne "Y") {
+    Write-Output "Installation canceled by the user."
+    exit 1
+}
 
 # Change directory to where Office Deployment Tool is extracted
 Set-Location $outputDir
@@ -118,4 +164,13 @@ try {
 } catch {
     Write-Error "Failed to install Office 2021 LTSC: $_"
     exit 1
+}
+
+# Cleanup option
+$cleanup = Read-Host "Do you want to delete the downloaded files to free up space? (Y/N)"
+if ($cleanup -eq "Y") {
+    Remove-Item -Recurse -Force $outputDir
+    Write-Output "Downloaded files have been deleted."
+} else {
+    Write-Output "Downloaded files have been retained."
 }
