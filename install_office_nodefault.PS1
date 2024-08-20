@@ -15,7 +15,12 @@ $odtDownloadLink = $pageContent.Links | Where-Object { $_.href -match "/download
 
 # Check if a valid link was found
 if ($odtDownloadLink) {
-    $odtUrl = "https://www.microsoft.com$odtDownloadLink"
+    # Ensure the URL is properly constructed
+    if ($odtDownloadLink.StartsWith("/")) {
+        $odtUrl = "https://www.microsoft.com$odtDownloadLink"
+    } else {
+        $odtUrl = "https://www.microsoft.com/$odtDownloadLink"
+    }
     Write-Output "Latest ODT URL found: $odtUrl"
 } else {
     Write-Error "Failed to find the latest ODT URL."
@@ -133,7 +138,12 @@ if ($selection -ne 3) {
 }
 
 # Prompt the user if they want to remove previous Office versions
-$removePrevious = Read-Host "Do you want to remove previous versions of Office on this computer? (Y/N). This is optional; say No if you're doing a new install or updating."
+Write-Output "NOTE: Removing previous versions of Office is optional."
+Write-Output "You may want to retain the existing installation if:"
+Write-Output "1. You are performing an update and want to ensure settings and customizations are preserved."
+Write-Output "2. You are installing a different edition or version side-by-side with an existing Office installation."
+Write-Output "3. You are troubleshooting or comparing features between different Office versions."
+$removePrevious = Read-Host "Do you want to remove previous versions of Office on this computer? (Y/N)"
 
 if ($removePrevious -eq "Y") {
     # Insert <RemoveMSI /> into the configuration.xml file
@@ -179,7 +189,8 @@ try {
     exit 1
 }
 
-# Cleanup option
+# Cleanup option with warning
+Write-Output "IMPORTANT: Please ensure that the Office setup window is closed before proceeding."
 $cleanup = Read-Host "Do you want to delete the downloaded files to free up space? (Y/N)"
 if ($cleanup -eq "Y") {
     Remove-Item -Recurse -Force $outputDir
