@@ -1,5 +1,5 @@
 # Define default ODT URL
-$odtUrl = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17830-20162.exe"
+$odtUrl = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_18129-20030.exe"
 
 # Check if a new ODT URL is provided as a command-line argument
 if ($args.Count -ge 3 -and $args[0] -eq "newurl") {
