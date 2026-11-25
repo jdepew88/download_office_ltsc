@@ -1,16 +1,20 @@
-<Configuration ID="31633a5a-5caa-40d2-9ac8-fa73e835f89c">
-  <Add OfficeClientEdition="64" Channel="PerpetualVL2021">
-    <Product ID="Standard2021Volume" PIDKEY="KDX7X-BNVR8-TXXGX-4Q7Y8-78VT3">
+<Configuration>
+  <!--
+    Office LTSC Standard 2024 (volume licensed), 64-bit.
+    No product key is included: volume licensed Office LTSC 2024 installs with
+    Microsoft's Generic Volume License Key (GVLK) by default, which activates
+    against a KMS host or Active Directory-based activation. For MAK or manual
+    activation, run Activate_Office.ps1 after installation.
+    The RemoveMSI and Display elements are added at run time by
+    Install_Office.ps1 when requested.
+  -->
+  <Add OfficeClientEdition="64" Channel="PerpetualVL2024">
+    <Product ID="Standard2024Volume">
       <Language ID="en-us" />
       <Language ID="MatchOS" />
       <ExcludeApp ID="Lync" />
     </Product>
   </Add>
-  <Property Name="SharedComputerLicensing" Value="0" />
   <Property Name="FORCEAPPSHUTDOWN" Value="FALSE" />
-  <Property Name="DeviceBasedLicensing" Value="0" />
-  <Property Name="SCLCacheOverride" Value="0" />
-  <Property Name="AUTOACTIVATE" Value="1" />
   <Updates Enabled="TRUE" />
-  <RemoveMSI />
 </Configuration>
